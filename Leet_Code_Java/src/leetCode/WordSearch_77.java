@@ -7,6 +7,9 @@ import java.util.stream.IntStream;
 public class WordSearch_77 {
     static Map<Integer, int[]> skipMap = new HashMap<>();
     public static boolean exist(char[][] board, String word) {
+        if(word.length() > board.length * board[0].length)
+            return false;
+
         for (int i = 0; i < board.length; i++){
             skipMap.put(i, new int[]{});
         }
@@ -18,9 +21,7 @@ public class WordSearch_77 {
                 if (board[i][j] == word.charAt(0)) {
                     letterFound = true;
                     firstLetterPos.add(new AbstractMap.SimpleEntry<>(i, j));
-                    continue;
-                }
-                if(!word.contains(String.valueOf(board[i][j])))
+                } else if(!word.contains(String.valueOf(board[i][j])))
                     addSkipEntry(i, j);
             }
         }
@@ -32,16 +33,11 @@ public class WordSearch_77 {
         if(word.length() == 1)
             return firstLetterPos.size() > 0;
 
-        int prev_i, prevj;
         for (Map.Entry<Integer, Integer> posTuple : firstLetterPos) {
             int i = posTuple.getKey();
             int j = posTuple.getValue();
-            addSkipEntry(i, j);
             if(!isFound)
-                isFound = helper(board, word, 1, i + 1, j)
-                        || helper(board, word, 1, i, j + 1)
-                        || helper(board, word, 1, i, j - 1)
-                        || helper(board, word, 1, i - 1, j);
+                isFound = helper(board, word, 0, i, j);
         }
 
         return isFound;
@@ -54,18 +50,26 @@ public class WordSearch_77 {
         int[] skipRowArr = skipMap.get(rowIndex);
 
         if(IntStream.of(skipRowArr).noneMatch(x -> x == colIndex)){
-            addSkipEntry(rowIndex, colIndex);
-            if(letterIndex == word.length() - 1){
+            if(letterIndex == word.length() - 1)
                 return board[rowIndex][colIndex] == word.charAt(letterIndex);
+
+            boolean isFound = false;
+            addSkipEntry(rowIndex, colIndex);
+            if(word.charAt(letterIndex) == board[rowIndex][colIndex]){
+                isFound = helper(board, word, letterIndex + 1, rowIndex + 1, colIndex)
+                        || helper(board, word, letterIndex + 1, rowIndex - 1, colIndex)
+                        || helper(board, word, letterIndex + 1, rowIndex, colIndex + 1)
+                        || helper(board, word, letterIndex + 1, rowIndex, colIndex - 1);
             }
 
-            if(word.charAt(letterIndex) == board[rowIndex][colIndex]){
-                return helper(board, word, letterIndex + 1, rowIndex + 1, colIndex)
-                        || helper(board, word, letterIndex + 1, rowIndex, colIndex + 1)
-                        || helper(board, word, letterIndex + 1, rowIndex, colIndex - 1)
-                        || helper(board, word, letterIndex + 1, rowIndex - 1, colIndex);
+            if(!isFound){
+                removeSkipEntry(rowIndex, colIndex);
+                return false;
+            } else {
+                return true;
             }
         }
+
         return false;
     }
 
@@ -73,6 +77,13 @@ public class WordSearch_77 {
         int[] skipRowArr = skipMap.get(rowIndex);
         List<Integer> skipRowList = Arrays.stream(skipRowArr).boxed().collect(Collectors.toList());
         skipRowList.add(colIndex);
+        skipMap.put(rowIndex, skipRowList.stream().mapToInt(i -> i).toArray());
+    }
+
+    public static void removeSkipEntry(int rowIndex, int colIndex){
+        int[] skipRowArr = skipMap.get(rowIndex);
+        List<Integer> skipRowList = Arrays.stream(skipRowArr).boxed().collect(Collectors.toList());
+        skipRowList.remove(Integer.valueOf(colIndex));
         skipMap.put(rowIndex, skipRowList.stream().mapToInt(i -> i).toArray());
     }
 
@@ -84,10 +95,14 @@ public class WordSearch_77 {
     }
 
     public static void main(String[] args) {
-//        System.out.println(exist(new char[][]{{'A', 'B', 'C', 'E'}, {'S', 'F', 'C', 'S'}, {'A', 'D', 'E', 'E'}}, "ABCCED"));
-//        System.out.println(exist(new char[][]{{'A', 'B', 'C', 'E'} ,{'S', 'F', 'C', 'S'}, {'A', 'D', 'E', 'E'}}, "SEE"));
-//        System.out.println(exist(new char[][]{{'A', 'B', 'C', 'E'} ,{'S', 'F', 'C', 'S'}, {'A', 'D', 'E', 'E'}}, "ABCB"));
-//        System.out.println(exist(new char[][]{{'A'}}, "A"));
+        System.out.println(exist(new char[][]{{'A', 'B', 'C', 'E'}, {'S', 'F', 'C', 'S'}, {'A', 'D', 'E', 'E'}}, "ABCCED"));
+        System.out.println(exist(new char[][]{{'A', 'B', 'C', 'E'} ,{'S', 'F', 'C', 'S'}, {'A', 'D', 'E', 'E'}}, "SEE"));
+        System.out.println(exist(new char[][]{{'A', 'B', 'C', 'E'} ,{'S', 'F', 'C', 'S'}, {'A', 'D', 'E', 'E'}}, "ABCB"));
+        System.out.println(exist(new char[][]{{'A'}}, "A"));
         System.out.println(exist(new char[][]{{'A', 'A'}}, "AA"));
+        System.out.println(exist(new char[][]{{'A', 'B'}, {'C', 'D'}}, "DBAC"));
+        System.out.println(exist(new char[][]{{'A', 'B'}, {'C', 'D'}}, "CDBA"));
+        System.out.println(exist(new char[][]{{'C', 'A', 'A'}, {'A', 'A', 'A'}, {'B', 'C', 'D'}}, "AAB"));
+        System.out.println(exist(new char[][]{{'A', 'A', 'A', 'A'}, {'A', 'A', 'A', 'A'}, {'A', 'A', 'A', 'A'}}, "AAAAAAAAAAAAA"));
     }
 }
