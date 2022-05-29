@@ -10,7 +10,8 @@ public class ExcelSheetColumnTitle_168 {
         }
         return result.reverse().toString();
     }
+
     public static void main(String[] args) {
-        convertToTitle(701);
+        System.out.println(convertToTitle(701));
     }
 }
