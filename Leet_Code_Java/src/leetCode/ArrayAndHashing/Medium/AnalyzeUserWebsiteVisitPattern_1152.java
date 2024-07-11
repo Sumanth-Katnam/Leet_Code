@@ -20,10 +20,9 @@ public class AnalyzeUserWebsiteVisitPattern_1152 {
             for (int i = 0; i < list.size(); i++) {
                 for (int j = i + 1; j < list.size(); j++) {
                     for (int k = j + 1; k < list.size(); k++) {
-                        var builder = new StringBuilder();
-                        var pattern = builder.append(list.get(i)).append(".")
-                                .append(list.get(j)).append(".")
-                                .append(list.get(k)).toString();
+                        var pattern = list.get(i) + "." +
+                                list.get(j) + "." +
+                                list.get(k);
 
                         if (uniquePatterns.add(pattern)) {
                             patternCount.merge(pattern, 1, Integer::sum);
