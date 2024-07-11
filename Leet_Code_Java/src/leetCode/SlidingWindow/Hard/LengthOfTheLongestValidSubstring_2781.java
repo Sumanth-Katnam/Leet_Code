@@ -6,25 +6,17 @@ import java.util.Set;
 
 public class LengthOfTheLongestValidSubstring_2781 {
     public int longestValidSubstring(String word, List<String> forbidden) {
-        int len = 0;
-        Set<String> all = new HashSet<>();
-        for (String s : forbidden) {
-            all.add(s);
-            len = Math.max(len, s.length());
-        }
-        int n = word.length();
-        int r = 0;
-        for (int i = n - 1, right = n; right > r && i >= 0; --i) {
-            StringBuilder temp = new StringBuilder();
-            for (int j = i; j < right && j - i < len; ++j) {
-                temp.append(word.charAt(j));
-                if (all.contains(temp.toString())) {
-                    right = j;
+        var s = new HashSet<>(forbidden);
+        int ans = 0, n = word.length();
+        for (int i = 0, j = 0; j < n; ++j) {
+            for (int k = j; k > Math.max(j - 10, i - 1); --k) {
+                if (s.contains(word.substring(k, j + 1))) {
+                    i = k + 1;
                     break;
                 }
             }
-            r = Math.max(r, right - i);
+            ans = Math.max(ans, j - i + 1);
         }
-        return r;
+        return ans;
     }
 }
