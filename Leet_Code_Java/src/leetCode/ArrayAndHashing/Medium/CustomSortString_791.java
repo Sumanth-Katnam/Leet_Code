@@ -3,32 +3,30 @@ package leetCode.ArrayAndHashing.Medium;
 import java.util.*;
 
 public class CustomSortString_791 {
+    private void addToRes(char ch, Map<Character, Integer> cntMap, StringBuilder res){
+        char[] charArray = new char[cntMap.get(ch)];
+        Arrays.fill(charArray, ch);
+        res.append(new String(charArray));
+    }
     public String customSortString(String order, String s) {
-        Map<Character, Integer> pos_map = new HashMap<>();
-
-        for(Character ch: s.toCharArray()){
-            pos_map.put(ch, pos_map.getOrDefault(ch, 0) + 1);
+        Map<Character, Integer> cntMap = new HashMap<>();
+        for (Character ch : s.toCharArray()) {
+            cntMap.merge(ch, 1, Integer::sum);
         }
 
-
-        StringBuilder res = new StringBuilder();
-
-        for(Character ch: order.toCharArray()){
-            if(pos_map.containsKey(ch)){
-                char[] charArray = new char[pos_map.get(ch)];
-                Arrays.fill(charArray, ch);
-                res.append(new String(charArray));
-                pos_map.remove(ch);
+        var res = new StringBuilder();
+        // Adding the chars that occur in order
+        for (Character ch : order.toCharArray()) {
+            if (cntMap.containsKey(ch)) {
+                addToRes(ch, cntMap, res);
+                cntMap.remove(ch);
             }
         }
 
-
-        for(Character ch : pos_map.keySet()){
-            char[] charArray = new char[pos_map.get(ch)];
-            Arrays.fill(charArray, ch);
-            res.append(new String(charArray));
+        //Adding remaining chars
+        for (Character ch : cntMap.keySet()) {
+            addToRes(ch, cntMap, res);
         }
-
         return res.toString();
     }
 }
